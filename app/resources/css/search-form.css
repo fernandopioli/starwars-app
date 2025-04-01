@@ -1,0 +1,99 @@
+/* Estilos para o formulário de busca */
+.search-form-container {
+    background-color: #FFFFFF;
+    border: 1px solid #DADADA;
+    border-radius: 4px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    height: 100%;
+  }
+  
+  .search-form-container h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #333;
+  }
+  
+  .search-type-selector {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .search-type-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+  }
+  
+  .search-type-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+  
+  .radio-circle {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+  }
+  
+  .search-type-option.selected .radio-circle {
+    border-color: #00CC66;
+  }
+  
+  .search-type-option.selected .radio-circle:after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 10px;
+    height: 10px;
+    background-color: #00CC66;
+    border-radius: 50%;
+  }
+  
+  .search-input-container {
+    margin-bottom: 1rem;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: #00CC66;
+    box-shadow: 0 0 0 2px rgba(0, 204, 102, 0.2);
+  }
+  
+  .search-button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #00CC66;
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .search-button:hover {
+    background-color: #00B359;
+  }
+  
+  .search-button:disabled {
+    background-color: #B8B8B8;
+    cursor: not-allowed;
+  }

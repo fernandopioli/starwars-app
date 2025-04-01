@@ -1,0 +1,47 @@
+/* Estilos para os itens da lista */
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #EFEFEF;
+  }
+  
+  .list-item:last-child {
+    border-bottom: none;
+  }
+  
+  .list-item-details {
+    flex: 1;
+    min-width: 0; /* Previne overflow */
+  }
+  
+  .list-item-title {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .list-item-actions {
+    margin-left: 1rem;
+  }
+  
+  .see-details-button {
+    display: inline-block;
+    background-color: #00CC66;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s;
+  }
+  
+  .see-details-button:hover {
+    background-color: #00B359;
+  }
