@@ -149,6 +149,11 @@ return [
         Illuminate\View\ViewServiceProvider::class,
         Illuminate\Log\LogServiceProvider::class,
         Illuminate\Bus\BusServiceProvider::class,
+        Illuminate\Encryption\EncryptionServiceProvider::class,
+        Illuminate\Cookie\CookieServiceProvider::class,
+        Illuminate\Session\SessionServiceProvider::class,
+        Illuminate\Foundation\Providers\FoundationServiceProvider::class,
+        Illuminate\View\ViewServiceProvider::class,
         
 
         /*

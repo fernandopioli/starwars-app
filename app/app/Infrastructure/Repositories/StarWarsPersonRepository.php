@@ -173,11 +173,11 @@ class StarWarsPersonRepository implements PersonRepositoryInterface
                 if ($cachedFilm) {
                     Log::channel('swapi')->info("Using cached film for title", [
                         'film_id' => $filmId,
-                        'title' => $cachedFilm->getTitle()
+                        'title' => $cachedFilm
                     ]);
                     return new EntityReference(
                         id: $filmId,
-                        name: $cachedFilm->getTitle()
+                        name: $cachedFilm
                     );
                 }
             }
@@ -189,7 +189,6 @@ class StarWarsPersonRepository implements PersonRepositoryInterface
                     $startTime = microtime(true);
                     
                     $film = app(FilmRepositoryInterface::class)->findById($filmId, false);
-                    
                     $endTime = microtime(true);
                     $executionTime = ($endTime - $startTime) * 1000;
                     

@@ -173,11 +173,11 @@ class StarWarsFilmRepository implements FilmRepositoryInterface
                 if ($cachedPerson) {
                     Log::channel('swapi')->info("Using cached person for name", [
                         'person_id' => $characterId,
-                        'name' => $cachedPerson->getName()
+                        'name' => $cachedPerson
                     ]);
                     return new EntityReference(
                         id: $characterId,
-                        name: $cachedPerson->getName()
+                        name: $cachedPerson
                     );
                 }
             }
