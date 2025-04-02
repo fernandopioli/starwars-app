@@ -63,9 +63,21 @@ class FilmController extends Controller
 
     private function handleError(\Exception $e): JsonResponse
     {
+        $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+        
+        if ($e->getMessage() === "Film not found") {
+            $statusCode = Response::HTTP_NOT_FOUND; // 404
+        } else if ($e instanceof \Illuminate\Database\QueryException) {
+            // Para exceções de banco de dados, usamos 500
+            $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+        } else if (is_int($e->getCode()) && $e->getCode() >= 400 && $e->getCode() < 600) {
+            // Se o código da exceção for um status HTTP válido, use-o
+            $statusCode = $e->getCode();
+        }
+        
         return response()->json([
             'status' => 'error',
             'message' => $e->getMessage()
-        ], $e->getMessage() === "Film not found" ? Response::HTTP_NOT_FOUND : $e->getCode());
+        ], $statusCode);
     }
 } 

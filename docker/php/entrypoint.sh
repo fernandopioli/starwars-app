@@ -3,15 +3,17 @@ set -e
 
 cd /app/app
 
-# Ensure database directory exists and is writable
-mkdir -p database
-touch database/database.sqlite
-chmod -R 775 database
-chmod 664 database/database.sqlite
+
 
 # Check if this is first run
 if [ ! -f ".env" ]; then
     echo "First run detected, setting up environment..."
+
+    # Ensure database directory exists and is writable
+    mkdir -p database
+    touch database/database.sqlite
+    chmod -R 775 database
+    chmod 664 database/database.sqlite
     
     # Copy .env file
     cp .env.example .env

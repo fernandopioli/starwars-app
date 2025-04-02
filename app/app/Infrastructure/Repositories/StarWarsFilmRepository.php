@@ -6,6 +6,7 @@ use App\Application\Interfaces\Repositories\FilmRepositoryInterface;
 use App\Application\Interfaces\Repositories\PersonRepositoryInterface;
 use App\Domain\Entities\Film;
 use App\Domain\ValueObjects\EntityReference;
+use App\Events\QueryPerformed;
 use App\Infrastructure\Http\HttpClientInterface;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -22,6 +23,10 @@ class StarWarsFilmRepository implements FilmRepositoryInterface
 
     public function findAll(?string $query): array
     {
+
+        event(new QueryPerformed('films-' . ($query ?? 'all'), 'film'));
+
+        
         $cacheKey = 'films_' . ($query ?? 'all');
         
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($query) {
@@ -48,6 +53,9 @@ class StarWarsFilmRepository implements FilmRepositoryInterface
 
     public function findById(string $id, bool $withEnrichment = true): ?Film
     {
+        // Registrar a consulta por ID
+        event(new \App\Events\QueryPerformed("film-" . $id, 'film'));
+        
         $cacheKey = 'film_' . $id;
         
         if (Cache::has($cacheKey)) {

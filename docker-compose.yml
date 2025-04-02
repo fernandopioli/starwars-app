@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     build:
@@ -15,7 +13,23 @@ services:
     environment:
       - XDEBUG_MODE=coverage
       - RUN_TESTS=false
-    command: php-fpm
+
+  queue:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: starwars-queue
+    restart: unless-stopped
+    working_dir: /app/app
+    volumes:
+      - ./:/app
+      - ./docker/queue-init.sh:/usr/local/bin/queue-init.sh
+    networks:
+      - starwars-network
+    environment:
+      - XDEBUG_MODE=off
+    entrypoint: []
+    command: bash -c "chmod +x /usr/local/bin/queue-init.sh && /usr/local/bin/queue-init.sh"
 
   nginx:
     image: nginx:alpine

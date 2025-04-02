@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\FilmController;
 use App\Http\Controllers\Api\V1\PersonController;
+use App\Http\Controllers\Api\V1\StatisticsController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -10,4 +11,6 @@ Route::prefix('v1')->group(function () {
     
     Route::get('/people', [PersonController::class, 'index']);
     Route::get('/people/{id}', [PersonController::class, 'show']);
+    
+    Route::get('/statistics/top-queries', [StatisticsController::class, 'topQueries']);
 }); 
