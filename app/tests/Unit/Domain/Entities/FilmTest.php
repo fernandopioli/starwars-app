@@ -30,7 +30,11 @@ class FilmTest extends TestCase
         $this->assertEquals('George Lucas', $film->getDirector());
         $this->assertEquals('Gary Kurtz, Rick McCallum', $film->getProducer());
         $this->assertEquals('1977-05-25', $film->getReleaseDate());
-        $this->assertEquals(['https://swapi.dev/api/people/1/', 'https://swapi.dev/api/people/2/'], $film->getCharacters());
+        
+        $this->assertCount(2, $film->getCharacters());
+        $this->assertContainsOnlyInstancesOf(\App\Domain\ValueObjects\EntityReference::class, $film->getCharacters());
+        $this->assertEquals('1', $film->getCharacters()[0]->id);
+        $this->assertEquals('2', $film->getCharacters()[1]->id);
     }
 
     public function testFilmToArray(): void
@@ -56,7 +60,11 @@ class FilmTest extends TestCase
         $this->assertEquals($filmData['director'], $resultArray['director']);
         $this->assertEquals($filmData['producer'], $resultArray['producer']);
         $this->assertEquals($filmData['release_date'], $resultArray['release_date']);
-        $this->assertEquals($filmData['characters'], $resultArray['characters']);
+        
+        $this->assertIsArray($resultArray['characters']);
+        $this->assertCount(2, $resultArray['characters']);
+        $this->assertEquals('1', $resultArray['characters'][0]['id']);
+        $this->assertEquals('2', $resultArray['characters'][1]['id']);
     }
 
 
@@ -143,7 +151,7 @@ class FilmTest extends TestCase
         ];
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Characters must be an array of URLs');
+        $this->expectExceptionMessage('Characters must be an array');
         
         Film::fromArray($filmData);
     }
@@ -159,5 +167,60 @@ class FilmTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         
         Film::fromArray($filmData);
+    }
+
+    public function testCreateFilmWithCharactersAsArrays(): void
+    {
+        $filmData = [
+            'id' => '1',
+            'title' => 'A New Hope',
+            'episode_id' => 4,
+            'opening_crawl' => 'It is a period of civil war...',
+            'director' => 'George Lucas',
+            'producer' => 'Gary Kurtz, Rick McCallum',
+            'release_date' => '1977-05-25',
+            'characters' => [
+                ['id' => '1', 'name' => 'Luke Skywalker'],
+                ['id' => '2', 'name' => 'C-3PO']
+            ]
+        ];
+
+        $film = Film::fromArray($filmData);
+        
+        $this->assertCount(2, $film->getCharacters());
+        $this->assertContainsOnlyInstancesOf(\App\Domain\ValueObjects\EntityReference::class, $film->getCharacters());
+        $this->assertEquals('1', $film->getCharacters()[0]->id);
+        $this->assertEquals('Luke Skywalker', $film->getCharacters()[0]->name);
+        $this->assertEquals('2', $film->getCharacters()[1]->id);
+        $this->assertEquals('C-3PO', $film->getCharacters()[1]->name);
+    }
+    
+    public function testCreateFilmWithCharactersAsEntityReferences(): void
+    {
+        $entityRef1 = new \App\Domain\ValueObjects\EntityReference('1', 'Luke Skywalker');
+        $entityRef2 = new \App\Domain\ValueObjects\EntityReference('2', 'C-3PO');
+        
+        $filmData = [
+            'id' => '1',
+            'title' => 'A New Hope',
+            'episode_id' => 4,
+            'opening_crawl' => 'It is a period of civil war...',
+            'director' => 'George Lucas',
+            'producer' => 'Gary Kurtz, Rick McCallum',
+            'release_date' => '1977-05-25',
+            'characters' => [$entityRef1, $entityRef2]
+        ];
+
+        $film = Film::fromArray($filmData);
+        
+        $this->assertCount(2, $film->getCharacters());
+        $this->assertContainsOnlyInstancesOf(\App\Domain\ValueObjects\EntityReference::class, $film->getCharacters());
+        $this->assertEquals('1', $film->getCharacters()[0]->id);
+        $this->assertEquals('Luke Skywalker', $film->getCharacters()[0]->name);
+        $this->assertEquals('2', $film->getCharacters()[1]->id);
+        $this->assertEquals('C-3PO', $film->getCharacters()[1]->name);
+        
+        $this->assertSame($entityRef1, $film->getCharacters()[0]);
+        $this->assertSame($entityRef2, $film->getCharacters()[1]);
     }
 } 

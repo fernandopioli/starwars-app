@@ -3,28 +3,26 @@ version: '3.8'
 services:
   app:
     build:
-      context: ./docker/php
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/php/Dockerfile
     container_name: starwars-app
     restart: unless-stopped
-    working_dir: /app
-    ports:
-      - "8000:8000"
+    working_dir: /app/app
     volumes:
       - ./:/app
     networks:
       - starwars-network
     environment:
       - XDEBUG_MODE=coverage
-    depends_on:
-      - node
+      - RUN_TESTS=false
+    command: php-fpm
 
   nginx:
     image: nginx:alpine
     container_name: starwars-nginx
     restart: unless-stopped
     ports:
-      - "9000:80"
+      - "80:80"
     volumes:
       - ./:/app
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
@@ -35,17 +33,19 @@ services:
 
   node:
     build:
-      context: ./docker/node
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/node/Dockerfile
     container_name: starwars-node
     volumes:
       - ./:/app
-    working_dir: /app
+    working_dir: /app/app
     networks:
       - starwars-network
-    ports:
-    - "5173:5173"
+    environment:
+      - DEBUG=true
     tty: true
+    # Set to run once and exit
+    restart: "no"
 
 networks:
   starwars-network:

@@ -44,18 +44,25 @@ class Person
 
     public static function fromArray(array $data): self
     {
-        // Converter URLs de filmes para EntityReference
+        self::validate($data);
+        
         $films = array_map(function($film) {
             if ($film instanceof EntityReference) {
                 return $film;
             }
             
             if (is_string($film)) {
-                // Extrair ID da URL
                 preg_match('/\/(\d+)\/?$/', $film, $matches);
                 $id = $matches[1] ?? 'unknown';
                 
                 return new EntityReference(id: $id);
+            }
+            
+            if (is_array($film) && isset($film['id'])) {
+                return new EntityReference(
+                    $film['id'],
+                    $film['name'] ?? null
+                );
             }
             
             return $film;
@@ -103,7 +110,7 @@ class Person
             'eye_color' => $this->eyeColor,
             'birth_year' => $this->birthYear,
             'gender' => $this->gender,
-            'films' => $this->films,
+            'films' => array_map(fn($film) => $film->toArray(), $this->films),
         ];
     }
 

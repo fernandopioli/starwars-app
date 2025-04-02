@@ -1,6 +1,5 @@
 FROM php:8.2-fpm
 
-# Instalar dependências
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -10,26 +9,32 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libzip-dev \
+    sqlite3 \
+    libsqlite3-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar extensões do PHP
-RUN docker-php-ext-install mbstring exif pcntl bcmath gd zip
+RUN docker-php-ext-configure gd --with-jpeg --with-freetype \
+    && docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd zip
 
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug
 
-# Configurações do PHP
-COPY ./docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
-
-# Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copy entrypoint script DIRECTLY into the container
+COPY docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 WORKDIR /app/app
 
-# Configurar usuário não-root
 RUN useradd -G www-data,root -u 1000 -d /home/devuser devuser
 RUN mkdir -p /home/devuser/.composer && \
     chown -R devuser:devuser /home/devuser
 
 USER devuser
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["php-fpm"]
