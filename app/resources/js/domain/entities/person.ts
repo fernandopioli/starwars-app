@@ -11,7 +11,7 @@ export class Person {
   readonly eyeColor: string;
   readonly birthYear: string;
   readonly gender: string;
-  readonly films: string[];
+  readonly films: Array<{id: string, title?: string}>;
 
   private constructor({
     id,
@@ -34,7 +34,7 @@ export class Person {
     eyeColor: string;
     birthYear: string;
     gender: string;
-    films?: string[];
+    films?: Array<{id: string, title?: string}>;
   }) {
     this.id = id;
     this.name = name;
@@ -60,14 +60,6 @@ export class Person {
       birthYear: data.birth_year,
       gender: data.gender,
       films: data.films || [],
-    });
-  }
-
-
-  getFilmIds(): string[] {
-    return this.films.map(url => {
-      const parts = url.split('/');
-      return parts[parts.length - 2]; // Pega o ID da URL
     });
   }
 

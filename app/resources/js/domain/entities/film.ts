@@ -9,7 +9,7 @@ export class Film {
   readonly director: string;
   readonly producer: string;
   readonly releaseDate: string;
-  readonly characters: string[];
+  readonly characters: Array<{id: string, name?: string}>;
 
   private constructor({
     id,
@@ -28,7 +28,7 @@ export class Film {
     director: string;
     producer: string;
     releaseDate: string;
-    characters?: string[];
+      characters?: Array<{id: string, name?: string}>;
   }) {
     this.id = id;
     this.title = title;
@@ -50,13 +50,6 @@ export class Film {
       producer: data.producer,
       releaseDate: data.release_date,
       characters: data.characters || [],
-    });
-  }
-
-  getCharacterIds(): string[] {
-    return this.characters.map(url => {
-      const parts = url.split('/');
-      return parts[parts.length - 2]; // Pega o ID da URL
     });
   }
 

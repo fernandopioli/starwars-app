@@ -13,6 +13,7 @@ export default defineConfig(({ command }) => {
         ],
         resolve: {
             alias: {
+                '@/css': '/resources/css',
                 '@': '/resources/js',
             },
         },

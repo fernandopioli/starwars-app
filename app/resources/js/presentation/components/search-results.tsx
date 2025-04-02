@@ -11,7 +11,6 @@ interface SearchResultsProps {
   isLoading: boolean;
   error: string | null;
   hasSearched: boolean;
-  searchTerm: string;
 }
 
 const SearchResults: React.FC<SearchResultsProps> = ({
@@ -21,11 +20,16 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   isLoading,
   error,
   hasSearched,
-  searchTerm
 }) => {
+  const defaultMessage = (
+    <div className="empty-state">
+      <p>There are zero matches. <br />Use the form to search for {searchType === 'people' ? 'People' : 'Movies'}.</p>
+    </div>
+  );
+  
   const renderEmptyState = () => {
     if (!hasSearched) {
-      return null;
+      return defaultMessage;
     }
     
     if (error) {    
@@ -43,22 +47,18 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         </div>
       );
     }
-    
+
     if ((searchType === 'people' && peopleResults.length === 0) ||
-        (searchType === 'movies' && filmsResults.length === 0)) {
-      return (
-        <div className="empty-state">
-          <p>There are zero matches.</p>
-          <p>Use the form to search for {searchType === 'people' ? 'People' : 'Movies'}.</p>
-        </div>
-      );
+        (searchType === 'movies' && filmsResults.length === 0) ||
+        !searchType) {
+      return defaultMessage;
     }
     
     return null;
   };
   
   const renderPeopleResults = () => {
-    if (searchType !== 'people' || peopleResults.length === 0) {
+    if (searchType !== 'people' || peopleResults.length === 0 || isLoading) {
       return null;
     }
     
@@ -75,7 +75,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   };
   
   const renderFilmsResults = () => {
-    if (searchType !== 'movies' || filmsResults.length === 0) {
+    if (searchType !== 'movies' || filmsResults.length === 0 || isLoading) {
       return null;
     }
     
@@ -97,8 +97,12 @@ const SearchResults: React.FC<SearchResultsProps> = ({
       
       <div className="search-results-content">
         {renderEmptyState()}
-        {renderPeopleResults()}
-        {renderFilmsResults()}
+        {!isLoading && (
+          <>
+            {renderPeopleResults()}
+            {renderFilmsResults()}
+          </>
+        )}
       </div>
     </div>
   );

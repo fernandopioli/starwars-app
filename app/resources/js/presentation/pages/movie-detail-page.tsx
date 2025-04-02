@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getFilmByIdUseCase } from '@/main/dependencies-factory';
 import { Film } from '@/domain/entities';
-import '../../../css/detail-page.css';
+import DetailPageLayout from '@/presentation/components/detail-page-layout';
+import '@/css/detail-page.css';
 
 const MovieDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [film, setFilm] = useState<Film | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [relatedCharacters, setRelatedCharacters] = useState<Array<{id: string, name?: string}>>([]);
 
   useEffect(() => {
     const fetchFilm = async () => {
@@ -18,8 +20,10 @@ const MovieDetailPage: React.FC = () => {
         setIsLoading(true);
         const result = await getFilmByIdUseCase.execute(id);
         setFilm(result);
+        
+        setRelatedCharacters(result.characters);
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Erro ao buscar detalhes do filme');
+        setError(e instanceof Error ? e.message : 'Error fetching movie details');
       } finally {
         setIsLoading(false);
       }
@@ -28,85 +32,63 @@ const MovieDetailPage: React.FC = () => {
     fetchFilm();
   }, [id]);
 
-  if (isLoading) {
-    return (
-      <div className="detail-page">
-        <div className="detail-loading">
-          <p>Carregando...</p>
-        </div>
-      </div>
-    );
-  }
+  const renderCharacterLinks = () => {
+    if (!relatedCharacters || relatedCharacters.length === 0) {
+      return <span>No characters</span>;
+    }
+    
+    return relatedCharacters.map((character, index) => (
+      <React.Fragment key={character.id}>
+        <Link 
+          to={`/people/${character.id}`} 
+          className="related-item-link inline"
+        >
+          {character.name}
+        </Link>
+        {index < relatedCharacters.length - 1 && <span>, </span>}
+      </React.Fragment>
+    ));
+  };
 
-  if (error) {
+  const renderFilmContent = () => {
+    if (!film) return null;
+    
     return (
-      <div className="detail-page">
-        <div className="detail-error">
-          <h2>Erro</h2>
-          <p>{error}</p>
-          <Link to="/" className="back-link">Voltar para a busca</Link>
+      <>
+        <h1 className="detail-title">{film.title}</h1>
+        
+        <div className="detail-sections">
+          <div className="detail-section">
+            <h2 className="section-title">Opening Crawl</h2>
+            <div className="opening-crawl">
+              <p>{film.openingCrawl}</p>
+            </div>
+          </div>
+          
+          <div className="detail-section">
+            <h2 className="section-title">Characters</h2>
+            <div className="related-items-inline">
+              {renderCharacterLinks()}
+            </div>
+          </div>
         </div>
-      </div>
-    );
-  }
-
-  if (!film) {
-    return (
-      <div className="detail-page">
-        <div className="detail-error">
-          <h2>Filme não encontrado</h2>
-          <Link to="/" className="back-link">Voltar para a busca</Link>
+        
+        <div className="detail-actions">
+          <Link to="/" className="button button-primary">BACK TO SEARCH</Link>
         </div>
-      </div>
+      </>
     );
-  }
+  };
 
   return (
-    <div className="detail-page">
-      <div className="detail-header">
-        <Link to="/" className="back-link">Voltar para a busca</Link>
-        <h1>{film.title}</h1>
-      </div>
-      
-      <div className="detail-content">
-        <div className="detail-section">
-          <h2>Informações Gerais</h2>
-          <div className="detail-info-grid">
-            <div className="detail-info-item">
-              <span className="detail-label">Episódio:</span>
-              <span className="detail-value">{film.episodeId}</span>
-            </div>
-            
-            <div className="detail-info-item">
-              <span className="detail-label">Diretor:</span>
-              <span className="detail-value">{film.director}</span>
-            </div>
-            
-            <div className="detail-info-item">
-              <span className="detail-label">Produtor:</span>
-              <span className="detail-value">{film.producer}</span>
-            </div>
-            
-            <div className="detail-info-item">
-              <span className="detail-label">Data de Lançamento:</span>
-              <span className="detail-value">{film.getFormattedReleaseDate()}</span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="detail-section">
-          <h2>Abertura</h2>
-          <div className="opening-crawl">
-            <p>{film.openingCrawl}</p>
-          </div>
-        </div>
-        
-        <div className="detail-section">
-          <h2>Personagens</h2>
-          <p>Implementação dos personagens relacionados virá aqui</p>
-        </div>
-      </div>
-    </div>
+    <DetailPageLayout 
+      isLoading={isLoading}
+      error={error}
+      loadingMessage="Loading film details..."
+      title={film ? film.title : 'Film not found'}
+    >
+      {renderFilmContent()}
+    </DetailPageLayout>
   );
 };
 

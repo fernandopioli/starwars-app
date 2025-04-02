@@ -25,7 +25,7 @@ export interface ApiSuccessResponse<T> {
     director: string;
     producer: string;
     release_date: string;
-    characters: string[];
+    characters: Array<{id: string, name?: string}>;
   }
   
   export interface PersonApiData {
@@ -38,5 +38,5 @@ export interface ApiSuccessResponse<T> {
     eye_color: string;
     birth_year: string;
     gender: string;
-    films: string[];
+    films: Array<{id: string, title?: string}>;
   }

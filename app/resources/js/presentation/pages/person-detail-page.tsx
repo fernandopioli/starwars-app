@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+
 import { Person } from '@/domain/entities';
 import { getPersonByIdUseCase } from '@/main/dependencies-factory';
-import '../../../css/detail-page.css';
+import DetailPageLayout from '@/presentation/components/detail-page-layout';
+import '@/css/detail-page.css';
 
 const PersonDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [person, setPerson] = useState<Person | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [relatedFilms, setRelatedFilms] = useState<Array<{id: string, name?: string}>>([]);
 
   useEffect(() => {
     const fetchPerson = async () => {
@@ -18,8 +21,10 @@ const PersonDetailPage: React.FC = () => {
         setIsLoading(true);
         const result = await getPersonByIdUseCase.execute(id);
         setPerson(result);
+        
+        setRelatedFilms(result.films);
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Erro ao buscar detalhes do personagem');
+        setError(e instanceof Error ? e.message : 'Error fetching person details');
       } finally {
         setIsLoading(false);
       }
@@ -28,93 +33,79 @@ const PersonDetailPage: React.FC = () => {
     fetchPerson();
   }, [id]);
 
-  if (isLoading) {
+  const renderPersonContent = () => {
+    if (!person) return null;
+    
     return (
-      <div className="detail-page">
-        <div className="detail-loading">
-          <p>Carregando...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="detail-page">
-        <div className="detail-error">
-          <h2>Erro</h2>
-          <p>{error}</p>
-          <Link to="/" className="back-link">Voltar para a busca</Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (!person) {
-    return (
-      <div className="detail-page">
-        <div className="detail-error">
-          <h2>Personagem não encontrado</h2>
-          <Link to="/" className="back-link">Voltar para a busca</Link>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="detail-page">
-      <div className="detail-header">
-        <Link to="/" className="back-link">Voltar para a busca</Link>
-        <h1>{person.name}</h1>
-      </div>
-      
-      <div className="detail-content">
-        <div className="detail-section">
-          <h2>Informações Gerais</h2>
-          <div className="detail-info-grid">
-            <div className="detail-info-item">
-              <span className="detail-label">Altura:</span>
-              <span className="detail-value">{person.getFormattedHeight()}</span>
+      <>
+        <h1 className="detail-title">{person.name}</h1>
+        
+        <div className="detail-sections">
+          <div className="detail-section">
+            <h2 className="section-title">Details</h2>
+            <div className="detail-attributes">
+              <div className="attribute">
+                <span className="attribute-label">Birth Year:</span>
+                <span className="attribute-value">{person.birthYear}</span>
+              </div>
+              <div className="attribute">
+                <span className="attribute-label">Gender:</span>
+                <span className="attribute-value">{person.gender}</span>
+              </div>
+              <div className="attribute">
+                <span className="attribute-label">Eye Color:</span>
+                <span className="attribute-value">{person.eyeColor}</span>
+              </div>
+              <div className="attribute">
+                <span className="attribute-label">Hair Color:</span>
+                <span className="attribute-value">{person.hairColor}</span>
+              </div>
+              <div className="attribute">
+                <span className="attribute-label">Height:</span>
+                <span className="attribute-value">{person.height}</span>
+              </div>
+              <div className="attribute">
+                <span className="attribute-label">Mass:</span>
+                <span className="attribute-value">{person.mass}</span>
+              </div>
             </div>
-            
-            <div className="detail-info-item">
-              <span className="detail-label">Peso:</span>
-              <span className="detail-value">{person.getFormattedMass()}</span>
-            </div>
-            
-            <div className="detail-info-item">
-              <span className="detail-label">Cor do cabelo:</span>
-              <span className="detail-value">{person.hairColor}</span>
-            </div>
-            
-            <div className="detail-info-item">
-              <span className="detail-label">Cor da pele:</span>
-              <span className="detail-value">{person.skinColor}</span>
-            </div>
-            
-            <div className="detail-info-item">
-              <span className="detail-label">Cor dos olhos:</span>
-              <span className="detail-value">{person.eyeColor}</span>
-            </div>
-            
-            <div className="detail-info-item">
-              <span className="detail-label">Ano de nascimento:</span>
-              <span className="detail-value">{person.birthYear}</span>
-            </div>
-            
-            <div className="detail-info-item">
-              <span className="detail-label">Gênero:</span>
-              <span className="detail-value">{person.gender}</span>
+          </div>
+          
+          <div className="detail-section">
+            <h2 className="section-title">Movies</h2>
+            <div className="related-items">
+              {relatedFilms.map(film => {
+               
+                return (
+                  <Link 
+                    key={film.id} 
+                    to={`/films/${film.id}`}  
+                    className="related-item-link"
+                  >
+                    {film.name}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </div>
         
-        <div className="detail-section">
-          <h2>Filmes</h2>
-          <p>Implementação dos filmes relacionados virá aqui</p>
+        <div className="detail-actions">
+          <Link to="/" className="button button-primary">BACK TO SEARCH</Link>
         </div>
-      </div>
-    </div>
+      </>
+    );
+  };
+
+  return (
+    <DetailPageLayout 
+      isLoading={isLoading}
+      error={error}
+      loadingMessage="Loading person details..."
+      title={person ? person.name : 'Person not found'}
+    >
+      {renderPersonContent()}
+    </DetailPageLayout>
   );
 };
 

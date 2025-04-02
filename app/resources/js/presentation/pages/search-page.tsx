@@ -5,7 +5,7 @@ import { getFilmsUseCase } from '@/main/dependencies-factory';
 import { getPeopleUseCase } from '@/main/dependencies-factory';
 import SearchForm from '@/presentation/components/search-form';
 import SearchResults from '@/presentation/components/search-results';
-import '../../../css/search-page.css';
+import '@/css/search-page.css';
 
 const SearchPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -27,6 +27,9 @@ const SearchPage: React.FC = () => {
       return;
     }
     
+    setPeopleResults([]);
+    setFilmsResults([]);
+    
     setIsLoading(true);
     setError(null);
     setHasSearched(true);
@@ -35,16 +38,12 @@ const SearchPage: React.FC = () => {
       if (type === 'people') {
         const result = await getPeopleUseCase.execute(term);
         setPeopleResults(result.data);
-        setFilmsResults([]);
       } else {
         const result = await getFilmsUseCase.execute(term);
         setFilmsResults(result.data);
-        setPeopleResults([]);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error ');
-      setPeopleResults([]);
-      setFilmsResults([]);
     } finally {
       setIsLoading(false);
     }
@@ -67,10 +66,6 @@ const SearchPage: React.FC = () => {
   
   return (
     <div className="search-page">
-      <div className="search-page-header">
-        <h1>Star Wars Explorer</h1>
-      </div>
-      
       <div className="search-page-content">
         <div className="search-panel">
           <SearchForm 
@@ -91,7 +86,6 @@ const SearchPage: React.FC = () => {
             isLoading={isLoading}
             error={error}
             hasSearched={hasSearched}
-            searchTerm={searchTerm}
           />
         </div>
       </div>

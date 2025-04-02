@@ -1,13 +1,15 @@
-/* Estilos globais para a aplicação */
+@import 'components.css';
+
 :root {
-  --primary-color: #00CC66; /* SWStarter verde */
-  --primary-dark: #00B359;
+  --primary-color: #0ab463;
+  --primary-dark: #089954;
   --secondary-color: #333333;
   --light-color: #FFFFFF;
-  --background-color: #F5F5F5;
+  --background-color: #ededed;
   --border-color: #DADADA;
-  --text-color: #333333;
+  --text-color: #383838;
   --error-color: #CC0000;
+  --link-color: #0ab463;
 }
 
 * {
@@ -17,15 +19,17 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
   background-color: var(--background-color);
   color: var(--text-color);
-  line-height: 1.6;
+  min-height: 100vh;
+  position: relative;
 }
 
 a {
-  color: var(--primary-color);
+  color: var(--link-color);
   text-decoration: none;
 }
 
@@ -34,7 +38,7 @@ a:hover {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
   font-weight: 600;
   line-height: 1.2;
 }
@@ -43,25 +47,36 @@ button {
   cursor: pointer;
 }
 
-/* Utilitários */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.text-center {
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.button {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  font-weight: 600;
   text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  text-decoration: none;
 }
 
-.mt-1 { margin-top: 0.25rem; }
-.mt-2 { margin-top: 0.5rem; }
-.mt-3 { margin-top: 1rem; }
-.mt-4 { margin-top: 1.5rem; }
-.mt-5 { margin-top: 3rem; }
+.button-primary {
+  background-color: var(--primary-color);
+  color: var(--light-color);
+  border: none;
+}
 
-.mb-1 { margin-bottom: 0.25rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-3 { margin-bottom: 1rem; }
-.mb-4 { margin-bottom: 1.5rem; }
-.mb-5 { margin-bottom: 3rem; }
+.button-primary:hover {
+  background-color: var(--primary-dark);
+}

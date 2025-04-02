@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../../../css/search-form.css';
 
 interface SearchFormProps {
@@ -18,21 +18,22 @@ const SearchForm: React.FC<SearchFormProps> = ({
   onSubmit,
   isLoading
 }) => {
-  // Manipulador para alteração no input
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSearchTermChange(e.target.value);
   };
   
-  // Manipulador para submissão do formulário
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit();
+    if (searchTerm.trim()) {
+      onSubmit();
+    }
   };
   
-  // Manipulador para mudança de tipo de busca
   const handleTypeChange = (type: 'people' | 'movies') => {
     onTypeChange(type);
   };
+  
+  const isButtonDisabled = isLoading || !searchTerm.trim();
   
   return (
     <div className="search-form-container">
@@ -81,7 +82,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
         <button
           type="submit"
           className="search-button"
-          disabled={isLoading}
+          disabled={isButtonDisabled}
         >
           {isLoading ? 'SEARCHING...' : 'SEARCH'}
         </button>

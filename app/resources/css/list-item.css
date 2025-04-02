@@ -1,10 +1,9 @@
-/* Estilos para os itens da lista */
 .list-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
-    border-bottom: 1px solid #EFEFEF;
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
   }
   
   .list-item:last-child {
@@ -13,35 +12,52 @@
   
   .list-item-details {
     flex: 1;
-    min-width: 0; /* Previne overflow */
+    min-width: 0;
   }
   
   .list-item-title {
-    font-size: 1.125rem;
-    font-weight: 500;
-    color: #333;
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--text-color);
     margin: 0;
     overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
+    text-overflow: ellipsis;
   }
   
   .list-item-actions {
-    margin-left: 1rem;
+    margin-left: 10px;
   }
   
   .see-details-button {
     display: inline-block;
-    background-color: #00CC66;
-    color: white;
-    padding: 0.5rem 1rem;
+    background-color: var(--primary-color);
+    color: var(--light-color);
+    padding: 7px 15px;
     border-radius: 9999px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none !important;
     transition: background-color 0.2s;
   }
   
   .see-details-button:hover {
-    background-color: #00B359;
+    background-color: var(--primary-dark);
   }
+
+.film-characters {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.character-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.character-link:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}

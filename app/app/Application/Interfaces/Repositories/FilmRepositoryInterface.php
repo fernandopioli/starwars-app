@@ -9,5 +9,5 @@ interface FilmRepositoryInterface
 
     public function findAll(?string $query): array;
     
-    public function findById(string $id): ?Film;
+    public function findById(string $id, bool $withEnrichment = true): ?Film;
 } 

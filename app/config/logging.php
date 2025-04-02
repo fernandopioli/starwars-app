@@ -73,6 +73,14 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'swapi' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/swapi.log'),
+            'level' => 'debug',
+            'days' => 7,
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

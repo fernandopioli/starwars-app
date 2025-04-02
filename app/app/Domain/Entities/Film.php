@@ -2,6 +2,7 @@
 
 namespace App\Domain\Entities;
 
+use App\Domain\ValueObjects\EntityReference;
 use InvalidArgumentException;
 
 class Film
@@ -39,6 +40,22 @@ class Film
     {
         self::validate($data);
         
+        $characters = [];
+        if (isset($data['characters'])) {
+            foreach ($data['characters'] as $character) {
+                if (is_string($character)) {
+                    $characters[] = EntityReference::fromUrl($character);
+                } elseif (is_array($character) && isset($character['id'])) {
+                    $characters[] = new EntityReference(
+                        $character['id'],
+                        $character['name'] ?? null
+                    );
+                } elseif ($character instanceof EntityReference) {
+                    $characters[] = $character;
+                }
+            }
+        }
+        
         return new self(
             $data['id'],
             $data['title'],
@@ -47,7 +64,7 @@ class Film
             $data['director'],
             $data['producer'],
             $data['release_date'],
-            $data['characters'] ?? []
+            $characters
         );
     }
     
@@ -73,8 +90,8 @@ class Film
             throw new InvalidArgumentException("Episode ID must be numeric");
         }
 
-         if (isset($data['characters']) && !is_array($data['characters'])) {
-            throw new InvalidArgumentException("Characters must be an array of URLs");
+        if (isset($data['characters']) && !is_array($data['characters'])) {
+            throw new InvalidArgumentException("Characters must be an array");
         }
     }
 
@@ -88,7 +105,7 @@ class Film
             'director' => $this->director,
             'producer' => $this->producer,
             'release_date' => $this->releaseDate,
-            'characters' => $this->characters,
+            'characters' => array_map(fn($character) => $character->toArray(), $this->characters),
         ];
     }
 

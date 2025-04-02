@@ -2,6 +2,7 @@
 
 namespace App\Domain\Entities;
 
+use App\Domain\ValueObjects\EntityReference;
 use InvalidArgumentException;
 
 class Person
@@ -43,7 +44,22 @@ class Person
 
     public static function fromArray(array $data): self
     {
-        self::validate($data);
+        // Converter URLs de filmes para EntityReference
+        $films = array_map(function($film) {
+            if ($film instanceof EntityReference) {
+                return $film;
+            }
+            
+            if (is_string($film)) {
+                // Extrair ID da URL
+                preg_match('/\/(\d+)\/?$/', $film, $matches);
+                $id = $matches[1] ?? 'unknown';
+                
+                return new EntityReference(id: $id);
+            }
+            
+            return $film;
+        }, $data['films'] ?? []);
         
         return new self(
             $data['id'],
@@ -55,7 +71,7 @@ class Person
             $data['eye_color'] ?? null,
             $data['birth_year'] ?? null,
             $data['gender'] ?? null,
-            $data['films'] ?? []
+            $films
         );
     }
 
@@ -70,8 +86,8 @@ class Person
             throw new InvalidArgumentException("Person name is required");
         }
 
-         if (isset($data['films']) && !is_array($data['films'])) {
-            throw new InvalidArgumentException("Films must be an array of URLs");
+        if (isset($data['films']) && !is_array($data['films'])) {
+            throw new InvalidArgumentException("Films must be an array");
         }
     }
 

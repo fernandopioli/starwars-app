@@ -9,5 +9,5 @@ interface PersonRepositoryInterface
 
     public function findAll(?string $query): array;
     
-    public function findById(string $id): ?Person;
+    public function findById(string $id, bool $withEnrichment = true): ?Person;
 } 
