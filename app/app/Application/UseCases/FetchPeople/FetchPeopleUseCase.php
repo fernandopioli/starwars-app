@@ -2,6 +2,7 @@
 
 namespace App\Application\UseCases\FetchPeople;
 
+use App\Domain\Entities\Person;
 use App\Application\Interfaces\Repositories\PersonRepositoryInterface;
 
 class FetchPeopleUseCase
@@ -16,7 +17,7 @@ class FetchPeopleUseCase
         $people = $this->personRepository->findAll($input->searchQuery);
 
         $peopleData = array_map(
-            fn($person) => $person->toArray(),
+            fn(Person $person) => $person->toArray(),
             $people
         );
 

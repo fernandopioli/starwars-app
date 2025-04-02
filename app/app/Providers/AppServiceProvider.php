@@ -10,6 +10,7 @@ use App\Infrastructure\Http\HttpClientInterface;
 use App\Infrastructure\Repositories\DatabaseStatisticsRepository;
 use App\Infrastructure\Repositories\StarWarsFilmRepository;
 use App\Infrastructure\Repositories\StarWarsPersonRepository;
+
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

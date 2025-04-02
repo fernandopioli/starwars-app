@@ -8,7 +8,7 @@ class FetchPersonByIdOutputDTO
 {
 
     public function __construct(
-        public readonly ?Person $person
+        public readonly Person $person
     ) {
     }
 } 

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Application\UseCases\GetTopQueriesStatisticsUseCase;
+use App\Application\UseCases\Statistics\GetTopQueriesStatisticsUseCase;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class StatisticsController extends Controller
 {
@@ -15,11 +17,19 @@ class StatisticsController extends Controller
 
     public function topQueries(): JsonResponse
     {
-        $statistics = $this->getTopQueriesStatisticsUseCase->execute();
-        
-        return response()->json([
-            'data' => $statistics->toArray(),
-            'message' => 'Statistics retrieved successfully'
-        ]);
+        try {   
+            $statistics = $this->getTopQueriesStatisticsUseCase->execute();
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => $statistics->toArray(),
+            ], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
+    
 } 

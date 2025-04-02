@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Events\QueryPerformed;
-use App\Listeners\RecordQueryStatistics;
+use App\Domain\Events\QueryPerformed;
+use App\Application\Listeners\RecordQueryStatistics;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider

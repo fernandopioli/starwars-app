@@ -3,6 +3,7 @@
 namespace App\Domain\Entities;
 
 use App\Domain\ValueObjects\QueryStatistic;
+
 use DateTime;
 
 class TopQueriesStatistic

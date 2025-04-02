@@ -7,6 +7,7 @@ use App\Application\UseCases\FetchPeople\FetchPeopleUseCase;
 use App\Application\UseCases\FetchPersonById\FetchPersonByIdInputDTO;
 use App\Application\UseCases\FetchPersonById\FetchPersonByIdUseCase;
 use App\Http\Controllers\Controller;
+
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -45,13 +46,6 @@ class PersonController extends Controller
                 new FetchPersonByIdInputDTO(id: $id)
             );
 
-            if ($output->person === null) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Person not found'
-                ], Response::HTTP_NOT_FOUND);
-            }
-
             return response()->json([
                 'status' => 'success',
                 'data' => $output->person->toArray()
@@ -63,15 +57,13 @@ class PersonController extends Controller
 
     private function handleError(\Exception $e): JsonResponse
     {
-        $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR; // 500 por padrão
+        $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
         
         if ($e->getMessage() === "Person not found") {
-            $statusCode = Response::HTTP_NOT_FOUND; // 404
+            $statusCode = Response::HTTP_NOT_FOUND;
         } else if ($e instanceof \Illuminate\Database\QueryException) {
-            // Para exceções de banco de dados, usamos 500
             $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
         } else if (is_int($e->getCode()) && $e->getCode() >= 400 && $e->getCode() < 600) {
-            // Se o código da exceção for um status HTTP válido, use-o
             $statusCode = $e->getCode();
         }
         

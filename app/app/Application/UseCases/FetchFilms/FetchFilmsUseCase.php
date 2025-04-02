@@ -2,6 +2,7 @@
 
 namespace App\Application\UseCases\FetchFilms;
 
+use App\Domain\Entities\Film;
 use App\Application\Interfaces\Repositories\FilmRepositoryInterface;
 
 class FetchFilmsUseCase
@@ -16,7 +17,7 @@ class FetchFilmsUseCase
         $films = $this->filmRepository->findAll($input->searchQuery);
 
         $filmsData = array_map(
-            fn($film) => $film->toArray(),
+            fn(Film $film) => $film->toArray(),
             $films
         );
 

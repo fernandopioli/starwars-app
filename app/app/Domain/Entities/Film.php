@@ -3,6 +3,7 @@
 namespace App\Domain\Entities;
 
 use App\Domain\ValueObjects\EntityReference;
+
 use InvalidArgumentException;
 
 class Film
@@ -105,7 +106,7 @@ class Film
             'director' => $this->director,
             'producer' => $this->producer,
             'release_date' => $this->releaseDate,
-            'characters' => array_map(fn($character) => $character->toArray(), $this->characters),
+            'characters' => array_map(fn(EntityReference $character) => $character->toArray(), $this->characters),
         ];
     }
 
@@ -147,5 +148,11 @@ class Film
     public function getCharacters(): array
     {
         return $this->characters;
+    }
+
+    public function withCharacters(array $characters): self
+    {
+        $this->characters = $characters;
+        return $this;
     }
 } 

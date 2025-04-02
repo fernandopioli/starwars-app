@@ -7,7 +7,7 @@ use App\Domain\Entities\Film;
 class FetchFilmByIdOutputDTO
 {
     public function __construct(
-        public readonly ?Film $film
+        public readonly Film $film
     ) {
     }
 } 

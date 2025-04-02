@@ -3,6 +3,7 @@
 namespace App\Domain\Entities;
 
 use App\Domain\ValueObjects\EntityReference;
+
 use InvalidArgumentException;
 
 class Person
@@ -46,27 +47,22 @@ class Person
     {
         self::validate($data);
         
-        $films = array_map(function($film) {
-            if ($film instanceof EntityReference) {
-                return $film;
+        $films = [];
+        if (isset($data['films'])) {
+            foreach ($data['films'] as $film) {
+                if (is_string($film)) {
+                    $films[] = EntityReference::fromUrl($film);
+                } elseif (is_array($film) && isset($film['id'])) {
+                    $films[] = new EntityReference(
+                        $film['id'],
+                        $film['name'] ?? null
+                    );
+                } elseif ($film instanceof EntityReference) {
+                    $films[] = $film;
+                }
             }
+        }
             
-            if (is_string($film)) {
-                preg_match('/\/(\d+)\/?$/', $film, $matches);
-                $id = $matches[1] ?? 'unknown';
-                
-                return new EntityReference(id: $id);
-            }
-            
-            if (is_array($film) && isset($film['id'])) {
-                return new EntityReference(
-                    $film['id'],
-                    $film['name'] ?? null
-                );
-            }
-            
-            return $film;
-        }, $data['films'] ?? []);
         
         return new self(
             $data['id'],
@@ -110,7 +106,7 @@ class Person
             'eye_color' => $this->eyeColor,
             'birth_year' => $this->birthYear,
             'gender' => $this->gender,
-            'films' => array_map(fn($film) => $film->toArray(), $this->films),
+            'films' => array_map(fn(EntityReference $film) => $film->toArray(), $this->films),
         ];
     }
 
@@ -162,5 +158,11 @@ class Person
     public function getFilms(): array
     {
         return $this->films;
+    }
+
+    public function withFilms(array $films): self
+    {
+        $this->films = $films;
+        return $this;
     }
 }

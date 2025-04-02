@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Listeners;
+namespace App\Application\Listeners;
 
 use App\Application\Interfaces\Repositories\StatisticsRepositoryInterface;
-use App\Events\QueryPerformed;
+use App\Domain\Events\QueryPerformed;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class RecordQueryStatistics implements ShouldQueue

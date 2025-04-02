@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Application\UseCases\UpdateTopQueriesStatisticsUseCase;
+use App\Application\UseCases\Statistics\UpdateTopQueriesStatisticsUseCase;
 use Illuminate\Console\Command;
 
 class UpdateStatisticsCommand extends Command

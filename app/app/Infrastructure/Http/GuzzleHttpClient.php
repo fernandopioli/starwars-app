@@ -3,10 +3,11 @@
 namespace App\Infrastructure\Http;
 
 use App\Infrastructure\Http\HttpClientInterface;
+
+use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Support\Facades\Log;
 
 class GuzzleHttpClient implements HttpClientInterface
 {
@@ -15,15 +16,14 @@ class GuzzleHttpClient implements HttpClientInterface
     public function __construct()
     {
         $this->client = new Client([
-            'timeout' => 10.0, // 10 seconds timeout
-            'connect_timeout' => 5.0 // 5 seconds for connection
+            'timeout' => 10.0,
+            'connect_timeout' => 5.0
         ]);
     }
 
     public function get(string $url, array $params = []): array
     {
         try {
-            // Log at the beginning of the request
             Log::channel('swapi')->debug("Starting HTTP request", [
                 'method' => 'GET',
                 'url' => $url,
@@ -37,11 +37,10 @@ class GuzzleHttpClient implements HttpClientInterface
             ]);
             
             $endTime = microtime(true);
-            $executionTime = ($endTime - $startTime) * 1000; // in milliseconds
+            $executionTime = ($endTime - $startTime) * 1000;
             
             $responseData = json_decode($response->getBody()->getContents(), true);
             
-            // Log at the end of successful request
             Log::channel('swapi')->debug("HTTP request completed successfully", [
                 'method' => 'GET',
                 'url' => $url,
@@ -53,14 +52,13 @@ class GuzzleHttpClient implements HttpClientInterface
 
             return $responseData;
         } catch (GuzzleException $e) {
-            // Log request error
             Log::channel('swapi')->error("HTTP request failed", [
                 'method' => 'GET',
                 'url' => $url,
                 'params' => $params,
-                'exception' => get_class($e),
                 'message' => $e->getMessage(),
                 'code' => $e->getCode(),
+                'exception' => get_class($e),
                 'stack' => $e->getTraceAsString()
             ]);
             
