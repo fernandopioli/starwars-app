@@ -223,4 +223,101 @@ class FilmTest extends TestCase
         $this->assertSame($entityRef1, $film->getCharacters()[0]);
         $this->assertSame($entityRef2, $film->getCharacters()[1]);
     }
+
+    public function testWithCharactersMethod(): void
+    {
+        $filmData = [
+            'id' => '1',
+            'title' => 'A New Hope',
+            'episode_id' => 4,
+            'opening_crawl' => 'It is a period of civil war...',
+            'director' => 'George Lucas',
+            'producer' => 'Gary Kurtz, Rick McCallum',
+            'release_date' => '1977-05-25',
+            'characters' => []
+        ];
+
+        $film = Film::fromArray($filmData);
+        
+        // Initially no characters
+        $this->assertCount(0, $film->getCharacters());
+        
+        // Add characters
+        $newCharacters = [
+            new \App\Domain\ValueObjects\EntityReference('1', 'Luke Skywalker'),
+            new \App\Domain\ValueObjects\EntityReference('2', 'Leia Organa'),
+            new \App\Domain\ValueObjects\EntityReference('3', 'Han Solo')
+        ];
+        
+        $updatedFilm = $film->withCharacters($newCharacters);
+        
+        // Check that it's the same instance (fluent interface)
+        $this->assertSame($film, $updatedFilm);
+        
+        // Check that characters were updated
+        $this->assertCount(3, $film->getCharacters());
+        $this->assertEquals('1', $film->getCharacters()[0]->id);
+        $this->assertEquals('Luke Skywalker', $film->getCharacters()[0]->name);
+        $this->assertEquals('3', $film->getCharacters()[2]->id);
+        $this->assertEquals('Han Solo', $film->getCharacters()[2]->name);
+    }
+
+    public function testWithCharactersReplacesPreviousCharacters(): void
+    {
+        $filmData = [
+            'id' => '1',
+            'title' => 'A New Hope',
+            'episode_id' => 4,
+            'opening_crawl' => 'It is a period of civil war...',
+            'director' => 'George Lucas',
+            'producer' => 'Gary Kurtz, Rick McCallum',
+            'release_date' => '1977-05-25',
+            'characters' => ['https://swapi.dev/api/people/1/']
+        ];
+
+        $film = Film::fromArray($filmData);
+        
+        // Initially one character
+        $this->assertCount(1, $film->getCharacters());
+        $this->assertEquals('1', $film->getCharacters()[0]->id);
+        
+        // Replace with new characters
+        $newCharacters = [
+            new \App\Domain\ValueObjects\EntityReference('4', 'Darth Vader'),
+            new \App\Domain\ValueObjects\EntityReference('5', 'Obi-Wan Kenobi')
+        ];
+        
+        $film->withCharacters($newCharacters);
+        
+        // Check that characters were replaced, not added
+        $this->assertCount(2, $film->getCharacters());
+        $this->assertEquals('4', $film->getCharacters()[0]->id);
+        $this->assertEquals('5', $film->getCharacters()[1]->id);
+    }
+
+    public function testWithCharactersWithEmptyArray(): void
+    {
+        $filmData = [
+            'id' => '1',
+            'title' => 'A New Hope',
+            'episode_id' => 4,
+            'opening_crawl' => 'It is a period of civil war...',
+            'director' => 'George Lucas',
+            'producer' => 'Gary Kurtz, Rick McCallum',
+            'release_date' => '1977-05-25',
+            'characters' => ['https://swapi.dev/api/people/1/', 'https://swapi.dev/api/people/2/']
+        ];
+
+        $film = Film::fromArray($filmData);
+        
+        // Initially two characters
+        $this->assertCount(2, $film->getCharacters());
+        
+        // Replace with empty array
+        $film->withCharacters([]);
+        
+        // Check that characters were cleared
+        $this->assertCount(0, $film->getCharacters());
+        $this->assertEmpty($film->getCharacters());
+    }
 } 
