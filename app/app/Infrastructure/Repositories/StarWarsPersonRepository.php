@@ -26,15 +26,15 @@ class StarWarsPersonRepository implements PersonRepositoryInterface
     {
         event(new QueryPerformed('person-' . ($query ?? 'all'), 'person'));
 
-        
+
         $cacheKey = 'person_' . ($query ?? 'all');
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($query) {
             Log::channel('swapi')->info("Starting call to list people", ['query' => $query]);
             $startTime = microtime(true);
-            
+
             $response = $this->httpClient->get(self::BASE_URL . '/people', ['search' => $query]);
-            
+
             $endTime = microtime(true);
             $executionTime = ($endTime - $startTime) * 1000;
             Log::channel('swapi')->info("Call to list people completed", [
@@ -42,7 +42,7 @@ class StarWarsPersonRepository implements PersonRepositoryInterface
                 'execution_time_ms' => round($executionTime, 2),
                 'results_count' => count($response['results'] ?? [])
             ]);
-            
+
             return array_map(
                 fn(array $person) => $this->mapResponseToPerson($person),
                 $response['results']
@@ -52,10 +52,10 @@ class StarWarsPersonRepository implements PersonRepositoryInterface
 
     public function findById(string $id, bool $withEnrichment = true): ?Person
     {
-        event(new QueryPerformed("people-" . $id, 'person'));
-        
+        if($withEnrichment === true) event(new QueryPerformed("people-" . $id, 'person'));
+
         $cacheKey = 'person_' . $id;
-        
+
         if (Cache::has($cacheKey)) {
             Log::channel('swapi')->info("Cache HIT for person", [
                 'person_id' => $id,
@@ -66,10 +66,10 @@ class StarWarsPersonRepository implements PersonRepositoryInterface
                 Log::channel('swapi')->info("Returning non-enriched person from cache", ['person_id' => $id]);
                 return $person;
             }
-            
+
             if ($person && $withEnrichment) {
                 $filmsNeedEnrichment = false;
-                
+
                 foreach ($person->getFilms() as $film) {
                     if ($film->name === null) {
                         $filmsNeedEnrichment = true;
@@ -80,44 +80,44 @@ class StarWarsPersonRepository implements PersonRepositoryInterface
                         break;
                     }
                 }
-                
+
                 if (!$filmsNeedEnrichment) {
                     Log::channel('swapi')->info("All films already have names, returning cached person", ['person_id' => $id]);
                     return $person;
                 }
-                
+
                 Log::channel('swapi')->info("Re-enriching person's films", ['person_id' => $id]);
                 Cache::forget($cacheKey);
             }
         }
-        
+
         Log::channel('swapi')->info("Cache MISS for person", [
             'person_id' => $id,
             'cache_key' => $cacheKey
         ]);
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($id, $withEnrichment) {
             try {
                 Log::channel('swapi')->info("Starting call to find person by ID", ['person_id' => $id]);
                 $startTime = microtime(true);
-                
+
                 $response = $this->httpClient->get(self::BASE_URL . "/people/$id");
-                
+
                 $endTime = microtime(true);
                 $executionTime = ($endTime - $startTime) * 1000;
                 Log::channel('swapi')->info("Call to find person completed", [
-                    'person_id' => $id, 
+                    'person_id' => $id,
                     'execution_time_ms' => round($executionTime, 2)
                 ]);
-                
+
                 $person = $this->mapResponseToPerson($response);
-                
+
                 if ($withEnrichment) {
                     Log::channel('swapi')->info("Starting person films enrichment", ['person_id' => $id]);
                     $startTimeEnrich = microtime(true);
-                    
+
                     $enrichedPerson = $this->enrichPersonFilmsWithTitles($person);
-                    
+
                     $endTimeEnrich = microtime(true);
                     $executionTimeEnrich = ($endTimeEnrich - $startTimeEnrich) * 1000;
                     Log::channel('swapi')->info("Films enrichment completed", [
@@ -125,10 +125,10 @@ class StarWarsPersonRepository implements PersonRepositoryInterface
                         'execution_time_ms' => round($executionTimeEnrich, 2),
                         'films_count' => count($person->getFilms())
                     ]);
-                    
+
                     return $enrichedPerson;
                 }
-                
+
                 return $person;
             } catch (\Exception $e) {
                 Log::channel('swapi')->error("Error finding person", [
@@ -166,7 +166,7 @@ class StarWarsPersonRepository implements PersonRepositoryInterface
 
         $filmsWithTitles = array_map(function (EntityReference $film) {
             $filmId = $film->id;
-            
+
             $filmCacheKey = 'film_name' . $filmId;
             if (Cache::has($filmCacheKey)) {
                 $cachedFilm = Cache::get($filmCacheKey);
@@ -181,25 +181,25 @@ class StarWarsPersonRepository implements PersonRepositoryInterface
                     );
                 }
             }
-            
-            
+
+
             $title = Cache::remember($filmCacheKey, self::CACHE_TTL, function () use ($filmId) {
                 try {
                     Log::channel('swapi')->debug("Fetching film title directly", ['film_id' => $filmId]);
                     $startTime = microtime(true);
-                    
+
                     $film = app(FilmRepositoryInterface::class)->findById($filmId, false);
                     $endTime = microtime(true);
                     $executionTime = ($endTime - $startTime) * 1000;
-                    
+
                     $titleResult = $film ? $film->getTitle() : 'Unknown';
-                    
+
                     Log::channel('swapi')->debug("Film title obtained", [
                         'film_id' => $filmId,
                         'title' => $titleResult,
                         'execution_time_ms' => round($executionTime, 2)
                     ]);
-                    
+
                     return $titleResult;
                 } catch (\Exception $e) {
                     Log::channel('swapi')->warning("Error fetching film title", [
@@ -209,20 +209,20 @@ class StarWarsPersonRepository implements PersonRepositoryInterface
                     return 'Unknown Film';
                 }
             });
-            
+
             Log::channel('swapi')->info("Film enriched with title", [
                 'film_id' => $filmId,
                 'title' => $title
             ]);
-            
+
             return new EntityReference(
                 id: $filmId,
                 name: $title
             );
         }, $person->getFilms());
-        
+
         $film = $person->withFilms($filmsWithTitles);
-        
+
         Log::channel('swapi')->info("Films enrichment completed", [
             'person_id' => $person->getId(),
             'enriched_films' => array_map(function($film) {
@@ -232,7 +232,7 @@ class StarWarsPersonRepository implements PersonRepositoryInterface
                 ];
             }, $filmsWithTitles)
         ]);
-        
+
         return $film;
     }
 
@@ -241,4 +241,4 @@ class StarWarsPersonRepository implements PersonRepositoryInterface
         preg_match('/\/(\d+)\/?$/', $url, $matches);
         return $matches[1];
     }
-} 
+}
