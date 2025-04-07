@@ -3,60 +3,62 @@ services:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
-    container_name: starwars-app
+    container_name: dev-app
     restart: unless-stopped
     working_dir: /app/app
     volumes:
       - ./:/app
-    networks:
-      - starwars-network
+    ports:
+      - "8000:8000"
     environment:
+      - XDEBUG_MODE=develop,debug
+      - PHP_IDE_CONFIG=serverName=dev-app
+      - APP_ENV=development
+      - APP_DEBUG=true
       - RUN_TESTS=true
+    command: bash -c "php artisan serve --host=0.0.0.0 --port=8000"
+    
+    networks:
+      - dev-network
 
   queue:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
-    container_name: starwars-queue
+    container_name: dev-queue
     restart: unless-stopped
     working_dir: /app/app
     volumes:
       - ./:/app
       - ./docker/queue-init.sh:/usr/local/bin/queue-init.sh
-    networks:
-      - starwars-network
     environment:
-      - XDEBUG_MODE=off
+      - APP_ENV=development
+      - APP_DEBUG=true
     entrypoint: []
     command: bash -c "chmod +x /usr/local/bin/queue-init.sh && /usr/local/bin/queue-init.sh"
-
-  nginx:
-    image: nginx:alpine
-    container_name: starwars-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    volumes:
-      - ./:/app
-      - ./docker/nginx/conf.d:/etc/nginx/conf.d
     networks:
-      - starwars-network
+      - dev-network
     depends_on:
       - app
 
   node:
     build:
       context: .
-      dockerfile: docker/node/Dockerfile
-    container_name: starwars-node
+      dockerfile: docker/node/Dockerfile.dev
+    container_name: dev-node
     volumes:
       - ./:/app
     working_dir: /app/app
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    entrypoint: ["/usr/local/bin/entrypoint-dev.sh"]
     networks:
-      - starwars-network
-    tty: true
-    restart: "no"
+      - dev-network
+    depends_on:
+      - app
 
 networks:
-  starwars-network:
+  dev-network:
     driver: bridge

@@ -1,8 +1,15 @@
 #!/bin/bash
 set -e
 
-mkdir -p /app/app/database
-chmod -R 777 /app/app/database
+cd /app/app
+
+# Ensure proper permissions
+mkdir -p database
+chmod -R 777 database
+
+# Always install PHP dependencies first
+echo "Installing/updating PHP dependencies..."
+composer install --no-interaction --optimize-autoloader
 
 echo "Starting scheduler..."
 

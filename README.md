@@ -144,7 +144,9 @@ Unit tests have been implemented for the Domain layer only as a demonstration of
 - Docker
 - Docker Compose
 
-### Running the Application
+### Production Environment
+
+To run the application in production mode:
 
 ```bash
 # Clone the repository
@@ -158,47 +160,90 @@ docker compose up -d
 The application automatically:
 - Installs all dependencies (backend and frontend)
 - Runs database migrations
-- Builds front-end assets for development
+- Builds front-end assets for production
 - Sets up all configurations
-- Runs the scheduler for statistics
+- Runs the queue and scheduler for statistics
 
-### Running Tests
+### Development Environment
 
-To run the automated test suite:
+For development with hot-reloading and debugging capabilities:
 
 ```bash
-docker compose exec app php artisan test
+# Start the development environment
+./dev.sh up
 ```
+
+This uses the `docker-compose.dev.yml` configuration optimized for development, featuring:
+- Hot Module Replacement for the React frontend
+- Laravel development server with improved error reporting
+- Xdebug for PHP debugging
+- Automatic queue and scheduler processing
+
+Development Access Points:
+- **React Frontend**: http://localhost:5173
+- **Laravel API**: http://localhost:8000
 
 ## Docker Container Structure
 
+### Production Containers
 - `starwars-app`: PHP/Laravel container
 - `starwars-nginx`: Nginx web server container
-- `starwars-node`: Node.js container for frontend development
+- `starwars-node`: Node.js container for frontend building
 - `starwars-queue`: Scheduler service for statistics generation
+
+### Development Containers
+- `dev-app`: PHP container running Laravel development server
+- `dev-node`: Node.js container with Vite HMR for React
+- `dev-queue`: Combined queue worker and scheduler for background tasks
 
 ## Development Utilities
 
-### Useful Commands
+### Development Script Commands
 
-- Stop all containers:
+The project includes a handy `dev.sh` script to manage the development environment:
+
 ```bash
-docker compose down
+# Start development environment
+./dev.sh up
+
+# Stop development environment
+./dev.sh down
+
+# View logs from all containers
+./dev.sh logs
+
+# View logs from a specific container
+./dev.sh logs app   # Laravel logs
+./dev.sh logs node  # Vite/React logs
+./dev.sh logs queue # Queue and scheduler logs
+
+# List all running containers
+./dev.sh ps
+
+# Run artisan commands
+./dev.sh artisan migrate
+./dev.sh artisan make:controller ExampleController
+
+# Access shell in a container
+./dev.sh bash app
+./dev.sh bash node
+./dev.sh bash queue
+
+# Restart containers
+./dev.sh restart        # Restart all containers
+./dev.sh restart app    # Restart only the Laravel container
 ```
 
-- View logs:
+### Other Development Commands
+
+- Run tests:
 ```bash
-docker compose logs -f
+./dev.sh artisan test
 ```
 
-- Compile frontend assets in development mode:
+- Run tests with code coverage:
 ```bash
-docker compose exec node npm run dev
-```
-
-- Compile frontend assets for production:
-```bash
-docker compose exec node npm run build
+./dev.sh artisan test --coverage
 ```
 
 ## License

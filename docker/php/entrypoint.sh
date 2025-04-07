@@ -3,7 +3,9 @@ set -e
 
 cd /app/app
 
-
+# Always install PHP dependencies first
+echo "Installing/updating PHP dependencies..."
+composer install --no-interaction --optimize-autoloader
 
 # Check if this is first run
 if [ ! -f ".env" ]; then
@@ -18,10 +20,6 @@ if [ ! -f ".env" ]; then
     # Copy .env file
     cp .env.example .env
     
-    
-    # Install PHP dependencies
-    composer install --no-interaction --optimize-autoloader
-    
     # Generate app key
     php artisan key:generate
     
@@ -32,6 +30,8 @@ if [ ! -f ".env" ]; then
     php artisan optimize
     
     echo "Initial setup completed successfully!"
+else
+    echo "Environment already set up."
 fi
 
 # Create migrations table if it doesn't exist
