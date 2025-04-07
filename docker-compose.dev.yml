@@ -11,7 +11,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - XDEBUG_MODE=develop,debug
+      - XDEBUG_MODE=develop,debug,coverage
       - PHP_IDE_CONFIG=serverName=dev-app
       - APP_ENV=development
       - APP_DEBUG=true
