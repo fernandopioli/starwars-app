@@ -18,5 +18,3 @@ ENV PATH=/home/node/.npm-global/bin:$PATH
 USER node
 
 EXPOSE 5173
-
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
